@@ -93,7 +93,7 @@ export default function Page() {
               <div className="mt-4 px-2">
                 <Button
                   onClick={() => handleRemoveEvaluation(evaluation.id)}
-                  className="w-full bg-red-400 hover:bg-red-500 text-white rounded"
+                  className="w-full mb-10 bg-red-400 hover:bg-red-500 text-white rounded"
                 >
                   Remove Evaluation
                 </Button>
@@ -102,7 +102,7 @@ export default function Page() {
           ))}
 
           {/* Button to create another evaluation */}
-          <div className="flex items-center justify-center col-span-full mt-[10rem]">
+          <div className="flex items-center justify-center col-span-full mt-[6rem]">
             <Button
               onClick={handleAddEvaluation}
               className="bg-blue-400 hover:bg-blue-500 h-12 px-6"

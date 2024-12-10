@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { SquarePlus } from "lucide-react";
 import Link from "next/link";
 import CourseCard from "./components/courseCard";
+import Image from "next/image";
 
 export default function Home() {
   const [courses, setCourses] = useState<any[]>([]);
@@ -43,7 +44,15 @@ export default function Home() {
         </Link>
 
         {/* Error and Loading States */}
-        {loading && <p>Loading...</p>}
+        {loading && (
+          <Image
+            src="/loading.svg"
+            alt="Loading"
+            width={75}
+            height={75}
+            className="w-auto h-auto absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+          />
+        )}
         {error && <p className="text-red-500">Error: {error}</p>}
 
         {/* Responsive Grid */}

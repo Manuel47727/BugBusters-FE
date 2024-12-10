@@ -31,15 +31,29 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [numberOfStudents, setNumberOfStudents] = useState<number | null>(null);
+  const [needComputer, setNeedComputer] = useState<boolean>(false);
+  const [examTime, setExamTime] = useState<string>("");
 
+  // Fetch filtered rooms from the API
   const fetchRooms = async () => {
+    if (!examTime || numberOfStudents === null || numberOfStudents <= 0) {
+      setError("Please enter valid inputs for all fields.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
     try {
-      const response = await fetch("http://localhost:8080/room/getAll");
+      const response = await fetch(
+        `http://localhost:8080/room/getAvailableRooms?examTime=${encodeURIComponent(
+          examTime
+        )}&studentNum=${numberOfStudents}&needComputer=${needComputer}`
+      );
+
       if (!response.ok) {
         throw new Error("Failed to fetch rooms");
       }
+
       const data: Room[] = await response.json();
       setRooms(data);
     } catch (err) {
@@ -51,9 +65,7 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
   };
 
   const handleViewRooms = async () => {
-    if (rooms.length === 0) {
-      await fetchRooms();
-    }
+    await fetchRooms();
     setShowRoomDashboard(true);
   };
 
@@ -67,7 +79,7 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
       <h1 className="text-lg font-medium">Evaluation</h1>
 
       <label htmlFor="evaluationType">Type:</label>
-      <select name="evaluationType" className="border p-2 rounded">
+      <select name="evaluationType" className="border p-2 rounded w-full">
         <option value="Test">Test</option>
         <option value="Final Test in Exam Season">
           Final Test in Exam Season
@@ -91,7 +103,7 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
       </select>
 
       <label>
-        Percentage:
+        Weight:
         <input
           type="number"
           step="1"
@@ -103,7 +115,12 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
 
       <label>
         Date and Time:
-        <input type="datetime-local" className="border p-2 rounded w-full" />
+        <input
+          type="datetime-local"
+          className="border p-2 rounded w-full"
+          value={examTime}
+          onChange={(e) => setExamTime(e.target.value)}
+        />
       </label>
 
       <label>
@@ -123,7 +140,14 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
 
       <label>
         Computer?
-        <input type="checkbox" name="computer" id="computer" />
+        <input
+          type="checkbox"
+          name="computer"
+          id="computer"
+          className="ml-2 b "
+          checked={needComputer}
+          onChange={(e) => setNeedComputer(e.target.checked)}
+        />
       </label>
 
       <label>
@@ -139,7 +163,9 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
           <Button
             onClick={handleViewRooms}
             className="bg-blue-400"
-            disabled={numberOfStudents === null || numberOfStudents <= 0}
+            disabled={
+              numberOfStudents === null || numberOfStudents <= 0 || !examTime
+            }
           >
             View Rooms
           </Button>
@@ -150,7 +176,7 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
       {showRoomDashboard && (
         <div className="fixed inset-0 bg-white bg-opacity-90 z-50">
           <div className="h-full w-full p-6 overflow-y-auto">
-            <h2 className="text-2xl font-bold text-white mb-4 text-center">
+            <h2 className="text-2xl font-bold text-black mb-4 text-center">
               Select a Room
             </h2>
             {loading ? (

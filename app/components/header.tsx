@@ -16,7 +16,7 @@ export default function Header() {
                 alt="Logo"
                 width={150}
                 height={150}
-                className="w-full"
+                className="w-auto h-auto"
               />
             </a>
           </div>
