@@ -1,18 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 
 interface EvaluationCardProps {
   evaluation: {
     id?: number;
     ucId?: number;
-    name?: string;
     type?: string;
     weight?: number;
     date?: string;
     roomId?: number;
+    studentNum?: number;
+    needComputer?: boolean;
   };
+  onUpdate: (updatedEvaluation: any) => void;
 }
 
 interface Room {
@@ -24,19 +26,52 @@ interface Room {
   roomNumName: string;
 }
 
-export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
+export default function EvaluationCard({
+  evaluation,
+  onUpdate,
+}: EvaluationCardProps) {
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [selectedRoom, setSelectedRoom] = useState<number | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<number | null>(
+    evaluation.roomId || null
+  );
+  const [selectedRoomName, setSelectedRoomName] = useState<string | null>(null);
   const [showRoomDashboard, setShowRoomDashboard] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [numberOfStudents, setNumberOfStudents] = useState<number | null>(null);
-  const [needComputer, setNeedComputer] = useState<boolean>(false);
-  const [examTime, setExamTime] = useState<string>("");
+  const [studentNum, setStudentNum] = useState<number | null>(
+    evaluation.studentNum || null
+  );
+  const [needComputer, setNeedComputer] = useState<boolean>(
+    evaluation.needComputer || false
+  );
+  const [examTime, setExamTime] = useState<string>(evaluation.date || "");
+  const [evaluationType, setEvaluationType] = useState<string>(
+    evaluation.type || ""
+  );
+  const [weight, setWeight] = useState<number | undefined>(evaluation.weight);
+
+  // Update parent component when local state changes
+  useEffect(() => {
+    onUpdate({
+      type: evaluationType,
+      weight: weight,
+      date: examTime,
+      roomId: selectedRoom,
+      studentNum: studentNum,
+      needComputer: needComputer,
+    });
+  }, [
+    evaluationType,
+    weight,
+    examTime,
+    selectedRoom,
+    studentNum,
+    needComputer,
+  ]);
 
   // Fetch filtered rooms from the API
   const fetchRooms = async () => {
-    if (!examTime || numberOfStudents === null || numberOfStudents <= 0) {
+    if (!examTime || studentNum === null || studentNum <= 0) {
       setError("Please enter valid inputs for all fields.");
       return;
     }
@@ -47,7 +82,7 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
       const response = await fetch(
         `http://localhost:8080/room/getAvailableRooms?examTime=${encodeURIComponent(
           examTime
-        )}&studentNum=${numberOfStudents}&needComputer=${needComputer}`
+        )}&studentNum=${studentNum}&needComputer=${needComputer}`
       );
 
       if (!response.ok) {
@@ -56,11 +91,34 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
 
       const data: Room[] = await response.json();
       setRooms(data);
+
+      // If selected room exists in fetched data, update the name
+      if (selectedRoom) {
+        const foundRoom = data.find((room) => room.id === selectedRoom);
+        if (foundRoom) setSelectedRoomName(foundRoom.roomNumName);
+      }
     } catch (err) {
       console.error("Error fetching rooms:", err);
       setError("Could not fetch rooms. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchRoomById = async (roomId: number) => {
+    try {
+      const response = await fetch(
+        `http://localhost:8080/room/get?id=${roomId}`
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch room details");
+      }
+
+      const room: Room = await response.json();
+      setSelectedRoomName(room.roomNumName);
+    } catch (err) {
+      console.error("Error fetching room:", err);
+      setSelectedRoomName("Unknown Room");
     }
   };
 
@@ -71,15 +129,38 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
 
   const handleSelectRoom = (roomId: number) => {
     setSelectedRoom(roomId);
+    const room = rooms.find((room) => room.id === roomId);
+
+    if (room) {
+      setSelectedRoomName(room.roomNumName);
+    } else {
+      // Fetch room details if not already in `rooms`
+      fetchRoomById(roomId);
+    }
+
+    onUpdate({ roomId });
     setShowRoomDashboard(false);
   };
+
+  // Fetch the room name if `evaluation.roomId` is set but not in `rooms`
+  useEffect(() => {
+    if (selectedRoom && !selectedRoomName) {
+      fetchRoomById(selectedRoom);
+    }
+  }, [selectedRoom]);
 
   return (
     <div className="relative border border-sky-500 p-4 rounded shadow-md flex flex-col gap-2">
       <h1 className="text-lg font-medium">Evaluation</h1>
 
       <label htmlFor="evaluationType">Type:</label>
-      <select name="evaluationType" className="border p-2 rounded w-full">
+      <select
+        name="evaluationType"
+        className="border p-2 rounded w-full"
+        value={evaluationType}
+        onChange={(e) => setEvaluationType(e.target.value)}
+      >
+        <option value="">Select Evaluation Type</option>
         <option value="Test">Test</option>
         <option value="Final Test in Exam Season">
           Final Test in Exam Season
@@ -110,6 +191,10 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
           min="0"
           max="100"
           className="border p-2 rounded w-full"
+          value={weight ?? ""}
+          onChange={(e) =>
+            setWeight(e.target.value ? parseInt(e.target.value, 10) : undefined)
+          }
         />
       </label>
 
@@ -128,11 +213,9 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
         <input
           type="number"
           className="border p-2 rounded w-full"
-          value={numberOfStudents ?? ""}
+          value={studentNum ?? ""}
           onChange={(e) =>
-            setNumberOfStudents(
-              e.target.value ? parseInt(e.target.value, 10) : null
-            )
+            setStudentNum(e.target.value ? parseInt(e.target.value, 10) : null)
           }
           placeholder="Enter the number of students"
         />
@@ -144,7 +227,7 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
           type="checkbox"
           name="computer"
           id="computer"
-          className="ml-2 b "
+          className="ml-2"
           checked={needComputer}
           onChange={(e) => setNeedComputer(e.target.checked)}
         />
@@ -155,17 +238,13 @@ export default function EvaluationCard({ evaluation }: EvaluationCardProps) {
         <div className="flex items-center gap-2">
           <span>
             {selectedRoom
-              ? `Selected Room: ${
-                  rooms.find((room) => room.id === selectedRoom)?.roomNumName
-                }`
+              ? `Selected Room: ${selectedRoomName || "Loading..."}`
               : "No room selected"}
           </span>
           <Button
             onClick={handleViewRooms}
             className="bg-blue-400"
-            disabled={
-              numberOfStudents === null || numberOfStudents <= 0 || !examTime
-            }
+            disabled={studentNum === null || studentNum <= 0 || !examTime}
           >
             View Rooms
           </Button>
