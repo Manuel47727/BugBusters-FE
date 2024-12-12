@@ -1,8 +1,12 @@
 import React from "react";
 import Image from "next/image";
 import { BookMarked, House, Settings } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { AuthContextType } from "@/@types/AuthContextTypes";
 
 export default function Header() {
+  const { user, logout, isAuthenticated } = useAuth() as AuthContextType;
+
   return (
     <header className="px-10 py-3 bg-[#e8ecfc] flex w-full border-b-2 border-sky-500 text-gray-500">
       <nav className="flex items-center justify-between w-full text-sm">
@@ -46,9 +50,9 @@ export default function Header() {
 
         {/* Login button on the right */}
         <div className="mx-[-40px] my-[-12px] bg-sky-500 border-l-[2px] text-white border-sky-500 hover:bg-transparent flex justify-center items-center hover:text-gray-500 transition duration-100 ease-in-out">
-          <a href="/login" className="px-[3rem] py-[25px]">
-            Login
-          </a>
+          <button onClick={() => logout()} className="px-[3rem] py-[25px]">
+            Logout
+          </button>
         </div>
       </nav>
     </header>

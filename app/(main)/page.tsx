@@ -6,20 +6,33 @@ import { SquarePlus } from "lucide-react";
 import Link from "next/link";
 import CourseCard from "../components/courseCard";
 import Image from "next/image";
+import { useAuth } from "@/context/AuthContext";
+import { AuthContextType } from "@/@types/AuthContextTypes";
 
 export default function Home() {
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const { user, isAuthenticated } = useAuth() as AuthContextType;
 
   useEffect(() => {
-    // Fetch the courses from the API
     const fetchCourses = async () => {
       try {
-        const response = await fetch("http://localhost:8080/course/getAll");
+        let response;
+
+        if (user.role === "admin") {
+          response = await fetch("http://localhost:8080/course/getAll");
+        } else {
+          response = await fetch(
+            `http://localhost:8080/userPermissionCourse/getCourses/${user.id}`
+          );
+        }
+
         if (!response.ok) {
           throw new Error("Failed to fetch courses");
         }
+
         const data = await response.json();
         setCourses(data);
       } catch (error: any) {
@@ -30,20 +43,23 @@ export default function Home() {
     };
 
     fetchCourses();
-  }, []);
+  }, [user]);
 
   return (
     <div>
       <main className="m-10 flex flex-col gap-8 row-start-2 items-center sm:items-start">
         <h1 className="font-medium">
           <span className="text-3xl font-bold">UPT</span>
-          <br /> <span className="text-xl italic">&emsp;All Courses</span>
+          <br /> <span className="text-xl italic">&emsp;Your Courses</span>
         </h1>
-        <Link href="/addCourse">
-          <Button className="bg-blue-400 hover:bg-blue-500 flex items-center gap-2">
-            <SquarePlus /> Add a new Course
-          </Button>
-        </Link>
+
+        {user.role === "admin" && (
+          <Link href="/addCourse">
+            <Button className="bg-blue-400 hover:bg-blue-500 flex items-center gap-2">
+              <SquarePlus /> Add a new Course
+            </Button>
+          </Link>
+        )}
 
         {/* Error and Loading States */}
         {loading && (
