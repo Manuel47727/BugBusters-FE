@@ -1,22 +1,62 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 
-export default function AddUCPage() {
+interface UC {
+  id: number;
+  name: string;
+  semestre: number;
+  ano: number;
+  tipo: string;
+  mandatory: boolean;
+  ucclosed: boolean;
+}
+
+export default function EditUCPage() {
+  const [uc, setUc] = useState<UC | null>(null);
   const [name, setName] = useState("");
   const [ano, setAno] = useState<number | null>(null);
   const [semestre, setSemestre] = useState<number | null>(null);
   const [tipo, setTipo] = useState("");
-  const [mandatory, setMandatory] = useState(false);
+  const [mandatory, setMandatory] = useState("");
   const [message, setMessage] = useState("");
 
-  const { courseId } = useParams(); // Get the courseId from the URL params
+  const params = useParams();
+  const ucId = parseInt(params.ucId as string, 10);
+
+  useEffect(() => {
+    if (!ucId) return;
+
+    const fetchUC = async () => {
+      try {
+        const response = await fetch(
+          `http://localhost:8080/uc/getUC?ucId=${ucId}`
+        );
+        if (!response.ok) {
+          throw new Error("Failed to fetch UC details.");
+        }
+        const data: UC = await response.json();
+        setUc(data);
+
+        // Pre-fill inputs with existing UC data
+        setName(data.name);
+        setAno(data.ano);
+        setSemestre(data.semestre);
+        setTipo(data.tipo);
+        setMandatory(data.mandatory ? "true" : "false");
+      } catch (error) {
+        console.error("Error fetching UC:", error);
+        setMessage("Failed to load UC details. Please try again later.");
+      }
+    };
+
+    fetchUC();
+  }, [ucId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate inputs
     if (!name.trim()) {
       setMessage("UC name is required.");
       return;
@@ -34,46 +74,51 @@ export default function AddUCPage() {
       return;
     }
     if (!mandatory) {
-      setMessage("Mandatory is required.");
+      setMessage("Mandatory selection is required.");
       return;
     }
 
     try {
-      const uc = {
-        courseId: courseId,
+      const updatedUC = {
         name,
         ano,
         semestre,
         tipo,
-        mandatory,
+        mandatory: mandatory === "true",
       };
 
-      const response = await fetch("http://localhost:8080/uc/add", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(uc),
-      });
+      const response = await fetch(
+        `http://localhost:8080/uc/edit?ucId=${ucId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updatedUC),
+        }
+      );
 
       if (response.ok) {
-        setMessage("UC added successfully!");
-        setName(""); // Clear the form
-        setAno(null);
-        setSemestre(null);
-        setTipo("");
-        setMandatory(false);
-        window.location.href = `/course/${courseId}`;
+        setMessage("UC updated successfully!");
+        window.history.back();
       } else {
-        setMessage("Failed to add UC. Please try again.");
+        setMessage("Failed to update UC. Please try again.");
       }
     } catch (error) {
-      console.error("Error adding UC:", error);
+      console.error("Error updating UC:", error);
       setMessage("An error occurred. Please try again.");
     }
   };
 
+  if (!uc) {
+    return (
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+        {message ? <p>{message}</p> : <p>Loading...</p>}
+      </div>
+    );
+  }
+
   return (
     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg mx-auto mt-10 p-6 border rounded shadow-lg">
-      <h1 className="text-2xl font-bold mb-4">Add a New UC</h1>
+      <h1 className="text-2xl font-bold mb-4">Edit UC</h1>
 
       {message && (
         <div
@@ -91,21 +136,20 @@ export default function AddUCPage() {
         {/* UC Name */}
         <div>
           <label htmlFor="ucName" className="block text-sm font-medium">
-            UC Name
+            Name
           </label>
           <input
             id="ucName"
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Enter UC name"
             className="mt-1 w-full p-2 border rounded"
           />
         </div>
 
         {/* Year (ano) */}
         <div>
-          <label className="block text-sm font-medium">Ano (Year)</label>
+          <label className="block text-sm font-medium">Year</label>
           <div className="flex gap-4">
             {[1, 2, 3].map((year) => (
               <label key={year} className="inline-flex items-center">
@@ -125,9 +169,7 @@ export default function AddUCPage() {
 
         {/* Semester (semestre) */}
         <div>
-          <label className="block text-sm font-medium">
-            Semestre (Semester)
-          </label>
+          <label className="block text-sm font-medium">Semester</label>
           <div className="flex gap-4">
             {[1, 2].map((sem) => (
               <label key={sem} className="inline-flex items-center">
@@ -148,7 +190,7 @@ export default function AddUCPage() {
         {/* Tipo (Type) */}
         <div>
           <label htmlFor="tipo" className="block text-sm font-medium">
-            Tipo (Type)
+            Type
           </label>
           <select
             id="tipo"
@@ -164,19 +206,22 @@ export default function AddUCPage() {
           </select>
         </div>
 
-        {/* Tipo (Type) */}
+        {/* Mandatory */}
         <div>
           <label htmlFor="mandatory" className="block text-sm font-medium">
             Mandatory
           </label>
           <select
             id="mandatory"
-            value={mandatory ? "true" : "false"}
-            onChange={(e) => setMandatory(e.target.value === "true")}
+            value={mandatory}
+            onChange={(e) => setMandatory(e.target.value)}
             className="mt-1 w-full p-2 border rounded"
           >
-            <option value="false">No</option>
+            <option value="" disabled>
+              Select Mandatory
+            </option>
             <option value="true">Yes</option>
+            <option value="false">No</option>
           </select>
         </div>
 
@@ -184,7 +229,7 @@ export default function AddUCPage() {
           type="submit"
           className="w-full bg-blue-400 text-white p-2 rounded hover:bg-blue-500"
         >
-          Add UC
+          Update UC
         </button>
       </form>
     </div>

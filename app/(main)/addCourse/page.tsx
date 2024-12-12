@@ -25,6 +25,7 @@ export default function AddCoursePage() {
       if (response.ok) {
         setMessage("Course added successfully!");
         setName(""); // Clear the form
+        window.location.href = "/";
       } else {
         setMessage("Failed to add course. Please try again.");
       }
@@ -35,7 +36,7 @@ export default function AddCoursePage() {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-10 p-6 border rounded shadow-lg">
+    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-lg mx-auto mt-10 p-6 border rounded shadow-lg">
       <h1 className="text-2xl font-bold mb-4">Add a New Course</h1>
 
       {message && (

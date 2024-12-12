@@ -1,11 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Header from "./components/header";
 import { Button } from "@/components/ui/button";
 import { SquarePlus } from "lucide-react";
 import Link from "next/link";
-import CourseCard from "./components/courseCard";
+import CourseCard from "../components/courseCard";
 import Image from "next/image";
 
 export default function Home() {
@@ -36,7 +35,10 @@ export default function Home() {
   return (
     <div>
       <main className="m-10 flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <h2 className="text-xl font-bold">All Courses</h2>
+        <h1 className="font-medium">
+          <span className="text-3xl font-bold">UPT</span>
+          <br /> <span className="text-xl italic">&emsp;All Courses</span>
+        </h1>
         <Link href="/addCourse">
           <Button className="bg-blue-400 hover:bg-blue-500 flex items-center gap-2">
             <SquarePlus /> Add a new Course

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Eye } from "lucide-react";
 
 interface EvaluationCardProps {
   evaluation: {
@@ -239,13 +240,14 @@ export default function EvaluationCard({
           <span>
             {selectedRoom
               ? `Selected Room: ${selectedRoomName || "Loading..."}`
-              : "No room selected"}
+              : "Evaluation done during class"}
           </span>
           <Button
             onClick={handleViewRooms}
             className="bg-blue-400"
             disabled={studentNum === null || studentNum <= 0 || !examTime}
           >
+            <Eye />
             View Rooms
           </Button>
         </div>
