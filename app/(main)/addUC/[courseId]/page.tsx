@@ -3,6 +3,15 @@
 import { useState } from "react";
 import { useParams } from "next/navigation";
 
+/**
+ * Page for adding a new UC.
+ *
+ * @remarks
+ * This page is responsible for allowing the user to add a new UC to a course.
+ * It renders a form with the required inputs and handles the submission of the form.
+ * If the submission is successful, it redirects to the course page.
+ * If the submission fails, it displays an error message.
+ */
 export default function AddUCPage() {
   const [name, setName] = useState("");
   const [ano, setAno] = useState<number | null>(null);
@@ -13,6 +22,14 @@ export default function AddUCPage() {
 
   const { courseId } = useParams(); // Get the courseId from the URL params
 
+  /**
+   * Handles the submission of the UC form.
+   *
+   * @remarks
+   * Validates the inputs and sends a POST request to the server to add the UC.
+   * If the request is successful, clears the form and redirects to the course page.
+   * If the request fails, displays an error message.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 

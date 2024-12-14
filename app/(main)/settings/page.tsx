@@ -32,6 +32,12 @@ interface Semester {
   endDate: string;
 }
 
+/**
+ * Page for editing settings, including adding users and assigning courses to users.
+ * Additionally, allows editing of semester dates.
+ *
+ * @returns {JSX.Element} The Settings page component.
+ */
 export default function Settings() {
   const [username, setUsername] = useState("");
   const [name, setName] = useState("");
@@ -58,6 +64,10 @@ export default function Settings() {
     fetchSemesters();
   }, []);
 
+  /**
+   * Fetches all semesters from the server and updates the state with the
+   * start and end dates for each semester.
+   */
   const fetchSemesters = async () => {
     try {
       const response = await fetch("http://localhost:8080/semester/getAll");
@@ -78,6 +88,10 @@ export default function Settings() {
 
   const fetchUsers = async () => {
     try {
+  /**
+   * Fetches all users from the server and updates the state with the
+   * list of users.
+   */
       const response = await fetch("http://localhost:8080/user/all");
       if (response.ok) {
         const data: User[] = await response.json();
@@ -89,6 +103,10 @@ export default function Settings() {
     }
   };
 
+  /**
+   * Fetches all courses from the server and updates the state with the
+   * list of courses.
+   */
   const fetchCourses = async () => {
     try {
       const response = await fetch("http://localhost:8080/course/getAll");
@@ -102,6 +120,13 @@ export default function Settings() {
     }
   };
 
+/**
+ * Handles the user click event by setting the selected user
+ * and clearing any previous success or error messages.
+ *
+ * @param {User} user - The user object that was clicked.
+ */
+
   const handleUserClick = (user: User) => {
     setSelectedUser(user);
     // Clear any previous messages when selecting a user
@@ -109,6 +134,12 @@ export default function Settings() {
     setErrorMessage(null);
   };
 
+/**
+ * Handles the course toggle event by adding or removing the course from the
+ * selected courses state.
+ *
+ * @param {number} courseId - The ID of the course that was toggled.
+ */
   const handleCourseToggle = (courseId: number) => {
     setSelectedCourses((prev) => {
       if (prev.includes(courseId)) {
@@ -119,6 +150,14 @@ export default function Settings() {
     });
   };
 
+/**
+ * Handles the "Assign Courses" button click event by sending a POST request
+ * to the `/userPermissionCourse/add` endpoint for each selected course.
+ *
+ * If all requests are successful, it will clear the selected courses state
+ * and display a success message. If any of the requests fail, it will
+ * display an error message.
+ */
   const handleAssignCourses = async () => {
     // Clear previous messages
     setSuccessMessage(null);
@@ -154,6 +193,14 @@ export default function Settings() {
     }
   };
 
+  /**
+   * Handles the user add form submission by sending a POST request to the
+   * `/user/add` endpoint. If the request is successful, it will clear the
+   * form fields and display a success message. If the request fails, it
+   * will display an error message.
+   *
+   * @param {React.FormEvent} e - The form event.
+   */
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
 
@@ -195,6 +242,17 @@ export default function Settings() {
     }
   };
 
+/**
+ * Handles the submission of the edit semester form.
+ *
+ * @param {object} e - The event object
+ * @param {number} semesterId - The ID of the semester to edit
+ *
+ * If the form is valid, an API request will be made to update the semester
+ * on the server. If the request is successful, a success message will be
+ * displayed, and the semesters list will be refreshed. Otherwise, an error
+ * message will be displayed.
+ */
   const handleSemesterUpdate = async (
     e: { preventDefault: () => void },
     semesterId: number

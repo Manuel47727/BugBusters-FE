@@ -13,6 +13,20 @@ interface UC {
   ucclosed: boolean;
 }
 
+/**
+ * Page for editing a UC.
+ *
+ * This page is protected by authentication, so only authenticated users can
+ * access it. When the page is loaded, it fetches the UC with the given ID from
+ * the backend and pre-fills the input fields with its data. If the fetch fails,
+ * it displays an error message.
+ *
+ * The page contains a form with input fields for the UC's name, year, semester,
+ * type, and mandatory status. It also contains a submit button. When the form
+ * is submitted, it sends a PUT request to the backend with the updated UC data.
+ * If the request is successful, it displays a success message and navigates
+ * back to the previous page. If the request fails, it displays an error message.
+ */
 export default function EditUCPage() {
   const [uc, setUc] = useState<UC | null>(null);
   const [name, setName] = useState("");
@@ -54,6 +68,16 @@ export default function EditUCPage() {
     fetchUC();
   }, [ucId]);
 
+  /**
+   * Handles the submission of the edit UC form.
+   *
+   * This function is called when the user submits the form. It first validates
+   * the input fields. If any of the fields are invalid, it displays an error
+   * message and returns. If all fields are valid, it sends a PUT request to the
+   * backend with the updated UC data. If the request is successful, it displays
+   * a success message and navigates back to the previous page. If the request
+   * fails, it displays an error message.
+   */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 

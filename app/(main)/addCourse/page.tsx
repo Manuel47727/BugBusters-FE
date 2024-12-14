@@ -2,10 +2,52 @@
 
 import { useState } from "react";
 
+/**
+ * A page component that allows users to add a new course by entering
+ * a course name. It includes a form with validation to ensure that the
+ * course name is provided before submission. Upon successful submission,
+ * the course is added to the backend, and the user is redirected to the
+ * homepage. Feedback messages are displayed to indicate success or failure
+ * of the operation.
+ */
+
+/**
+ * AddCoursePage is a React component that renders a form for adding a new course.
+ * It includes input validation to ensure the course name is provided before submission.
+ * Successful submissions send a POST request to the backend to add the course.
+ * Feedback messages indicate the success or failure of the operation, and the user
+ * is redirected to the homepage upon successful addition.
+ */
+
+/**
+ * A React component that renders a form for adding a new course.
+ * It includes input validation to ensure the course name is provided before submission.
+ * Successful submissions send a POST request to the backend to add the course.
+ * Feedback messages indicate the success or failure of the operation, and the user
+ * is redirected to the homepage upon successful addition.
+ */
+
 export default function AddCoursePage() {
   const [name, setName] = useState("");
   const [message, setMessage] = useState("");
 
+
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /**
+   * Handles the form submission for adding a new course.
+   * Prevents default form submission behavior, validates that
+   * the course name is provided, and sends a POST request to
+   * the backend to add the course. Displays a success message
+   * and redirects to the homepage if the addition is successful;
+   * otherwise, displays an error message. Logs and displays an
+   * error message if a network or other error occurs during the
+   * process.
+   *
+   * @param e - The form event triggered by the submission
+   */
+
+/******  b500b6d7-a7c1-4d43-896b-93813c2c9de9  *******/
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 

@@ -28,6 +28,28 @@ interface Evaluation {
   needComputer?: boolean;
 }
 
+/**
+ * Page component for the UC page.
+ *
+ * This component renders the page for a single UC, which includes a form to add
+ * evaluations, a list of evaluations, and a button to save the UC.
+ *
+ * The component uses several state variables to manage the form and the list of
+ * evaluations, and uses the `useSearchParams` hook to access the query string
+ * parameters.
+ *
+ * The component also uses the `useEffect` hook to fetch the UC status and the
+ * list of evaluations on mount, and to update the list of evaluations when the
+ * user adds or removes an evaluation.
+ *
+ * The component renders a loading message if the data is not yet available, and
+ * renders an error message if there is an error fetching the data.
+ *
+ * The component also renders a success message if the user successfully saves
+ * the UC.
+ *
+ * @returns The UC page component.
+ */
 export default function Page() {
   const [evaluations, setEvaluations] = useState<Evaluation[]>([]);
   const [loading, setLoading] = useState(true);
@@ -44,6 +66,12 @@ export default function Page() {
   const ucType = searchParams.get("ucType");
 
   useEffect(() => {
+  /**
+   * Fetches the status of the UC, i.e. whether it is closed or not.
+   *
+   * If the fetch is successful, sets the `isUCClosed` state to the value returned
+   * by the API. If there is an error, sets the `error` state to an error message.
+   */
     async function fetchUCClosedStatus() {
       try {
         const response = await fetch(
@@ -65,6 +93,13 @@ export default function Page() {
   }, [ucId]);
 
   useEffect(() => {
+  /**
+   * Fetches the list of evaluations associated with the given UC ID from the API.
+   *
+   * If the fetch is successful, sets the `evaluations` state to the value returned
+   * by the API. If there is an error, sets the `error` state to an error message.
+   * Also sets `loading` to `false` in either case.
+   */
     async function fetchEvaluations() {
       try {
         const response = await fetch(
@@ -89,6 +124,21 @@ export default function Page() {
 
   const handleToggleUCStatus = async (shouldClose: boolean) => {
     if (ucType === "continuous" && evaluations.length < 3) {
+/**
+ * Toggles the closed status of the UC with the given ID.
+ *
+ * Before submitting the request, checks that the UC has the correct number of
+ * evaluations for its type. If the UC does not have the correct number of
+ * evaluations, sets the `formError` state to an appropriate error message and
+ * does not submit the request.
+ *
+ * If the request is successful, sets the `isUCClosed` state to `shouldClose` and
+ * the `successMessage` state to a success message. If the request fails, sets
+ * the `formError` state to an error message.
+ *
+ * @param {boolean} shouldClose Whether the UC should be closed (`true`) or opened
+ * (`false`).
+ */
       setFormError(
         "UCs of type 'continuous' must have at least three evaluations."
       );
@@ -126,6 +176,14 @@ export default function Page() {
     }
   };
 
+/**
+ * Adds a new evaluation to the list of evaluations for the current UC.
+ * 
+ * Generates a new evaluation with a unique ID and the current UC ID,
+ * then appends it to the existing list of evaluations.
+ * Updates the state with the new list of evaluations.
+ */
+
   const handleAddEvaluation = () => {
     const newEvaluation: Evaluation = {
       id: Date.now(),
@@ -136,12 +194,30 @@ export default function Page() {
 
   const handleRemoveEvaluation = (id: number | undefined) => {
     if (id) {
+  /**
+   * Removes an evaluation from the list of evaluations for the current UC.
+   * 
+   * If the `id` parameter is undefined, does nothing.
+   * Otherwise, filters the existing list of evaluations to exclude the evaluation
+   * with the given ID, and updates the state with the new list of evaluations.
+   * @param {number | undefined} id The ID of the evaluation to remove.
+   */
       setEvaluations((prev) =>
         prev.filter((evaluation) => evaluation.id !== id)
       );
     }
   };
 
+  /**
+   * Updates an evaluation in the list of evaluations for the current UC.
+   * 
+   * If the `id` parameter is undefined, does nothing.
+   * Otherwise, maps over the existing list of evaluations and updates the
+   * evaluation with the given ID using the `updatedEvaluation` object.
+   * @param {number | undefined} id The ID of the evaluation to update.
+   * @param {Partial<Evaluation>} updatedEvaluation The updated evaluation to
+   * replace the existing one.
+   */
   const handleUpdateEvaluation = (
     id: number | undefined,
     updatedEvaluation: Partial<Evaluation>
@@ -155,6 +231,18 @@ export default function Page() {
     );
   };
 
+/**
+ * Prepares the evaluations for submission by mapping over the given array of
+ * evaluations and returning a new array of objects that exclude the `id` field.
+ * 
+ * This function is useful for creating a payload that can be sent to an API
+ * endpoint, where the `id` field is not required or should not be included.
+ * 
+ * @param {Evaluation[]} evaluations An array of evaluation objects to be processed.
+ * @returns {Object[]} An array of objects, each containing the fields: `date`,
+ * `needComputer`, `roomId`, `studentNum`, `type`, `ucId`, and `weight`.
+ */
+
   const prepareEvaluationsForSubmission = (evaluations: Evaluation[]) => {
     return evaluations.map(({ id, ...evaluation }) => ({
       date: evaluation.date,
@@ -166,6 +254,21 @@ export default function Page() {
       weight: evaluation.weight,
     }));
   };
+
+/**
+ * Validates that all required fields are filled for each evaluation.
+ *
+ * Iterates through the list of evaluations and checks if the fields
+ * `type`, `date`, `studentNum`, `needComputer`, and `weight` are present.
+ * If any of these fields are missing or undefined, sets the `formError`
+ * state to an appropriate error message and returns `false`, indicating
+ * that the form is invalid.
+ * 
+ * If all evaluations contain the necessary fields, clears any existing
+ * `formError` and returns `true`, indicating that the form is valid.
+ *
+ * @returns {boolean} `true` if all evaluations are valid, otherwise `false`.
+ */
 
   const validateForm = () => {
     for (const evaluation of evaluations) {

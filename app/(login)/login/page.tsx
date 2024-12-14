@@ -9,12 +9,47 @@ interface AuthContext {
   login: (username: string, password: string) => Promise<boolean>;
 }
 
+/**
+ * This component renders a login form with a logo, input fields for username
+ * and password, a submit button, and displays an error message if the login
+ * attempt fails. If the login attempt succeeds, it redirects the user to the
+ * home page.
+ */
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const { login } = useAuth() as AuthContext;
 
+/**
+ * Handles the form submission for the login process.
+ * 
+ * @param e - The event object from the form submission, used to prevent the default action.
+ * 
+ * This function attempts to log in the user using the provided username and password. 
+ * If the login is successful, the user is redirected to the home page. 
+ * If the login fails, an error message is displayed.
+ */
+
+/**
+ * Handles the form submission for the login process.
+ * 
+ * @param e - The event object from the form submission, used to prevent the default action.
+ * 
+ * This function attempts to log in the user using the provided username and password. 
+ * If the login is successful, the user is redirected to the home page. 
+ * If the login fails, an error message is displayed.
+ */
+
+  /**
+   * Handles the form submission for the login process.
+   * 
+   * @param e - The event object from the form submission, used to prevent the default action.
+   * 
+   * This function attempts to log in the user using the provided username and password. 
+   * If the login is successful, the user is redirected to the home page. 
+   * If the login fails, an error message is displayed.
+   */
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setError("");

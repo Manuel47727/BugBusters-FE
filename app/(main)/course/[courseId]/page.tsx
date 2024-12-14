@@ -23,6 +23,12 @@ interface UC {
   ucclosed: boolean;
 }
 
+/**
+ * Page to display all UCs for a given course, sorted by year.
+ * Includes a button to add a new UC, and a button to download the course map
+ * (only enabled if all UCs are closed).
+ * @returns A React component which renders a list of UCs and a button to add a new UC
+ */
 export default function Page() {
   const [ucs, setUcs] = useState<UC[]>([]);
   const [loading, setLoading] = useState(true);
@@ -35,6 +41,12 @@ export default function Page() {
   const courseName = searchParams.get("courseName");
 
   useEffect(() => {
+  /**
+   * Fetches all UCs for the current course from the API and sets the state
+   * accordingly. If the API call fails, sets the error state.
+   * If the response is not ok, throws an error
+   * If the response is ok, sets the loading state to false
+   */
     async function fetchUCs() {
       try {
         const response = await fetch(

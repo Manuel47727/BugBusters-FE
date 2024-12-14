@@ -27,6 +27,23 @@ interface Room {
   roomNumName: string;
 }
 
+/**
+ * A card to display and edit an evaluation.
+ * 
+ * @param evaluation - The evaluation data to display and edit.
+ * @param onUpdate - A callback function to call when the local state changes.
+ * @returns A JSX element representing the evaluation card.
+ * 
+ * The evaluation card displays the evaluation type, weight, date, number of students, whether it requires a computer, and the room assigned to it.
+ * The user can edit the evaluation type, weight, date, number of students, and whether it requires a computer.
+ * The user can also select a room from a list of available rooms.
+ * If the user selects a room, the room name is displayed in the card, and the room ID is sent to the parent component through the `onUpdate` callback.
+ * If the user does not select a room, the card displays "Evaluation done during class".
+ * The card also displays a button to view the available rooms.
+ * When the user clicks the button, the card displays a fullscreen room dashboard with a list of available rooms.
+ * The user can select a room from the list, and the room name is displayed in the card, and the room ID is sent to the parent component through the `onUpdate` callback.
+ * The user can close the room dashboard by clicking a button.
+ */
 export default function EvaluationCard({
   evaluation,
   onUpdate,
@@ -106,6 +123,16 @@ export default function EvaluationCard({
     }
   };
 
+/**
+ * Fetches details of a room by its ID and updates the selected room name.
+ *
+ * @param roomId - The ID of the room to fetch details for.
+ *
+ * The function makes an API request to fetch the room details using the provided room ID.
+ * If the request is successful, it updates the selected room name with the room's number name.
+ * In case of an error, it logs the error to the console and sets the selected room name to "Unknown Room".
+ */
+
   const fetchRoomById = async (roomId: number) => {
     try {
       const response = await fetch(
@@ -123,13 +150,31 @@ export default function EvaluationCard({
     }
   };
 
+  /**
+   * Fetches available rooms based on user inputs and shows the room dashboard.
+   *
+   * This function fetches available rooms based on the user's input for exam time, student number, and computer requirement.
+   * If the request is successful, it shows the room dashboard with the fetched rooms.
+   */
   const handleViewRooms = async () => {
     await fetchRooms();
+
     setShowRoomDashboard(true);
   };
 
   const handleSelectRoom = (roomId: number) => {
     setSelectedRoom(roomId);
+/**
+ * Handles the selection of a room and updates the state accordingly.
+ *
+ * @param roomId - The ID of the room that has been selected.
+ *
+ * The function updates the selected room ID and attempts to find the room details
+ * in the current list of rooms. If the room is found, it updates the selected room name.
+ * If not found, it fetches the room details by ID. Finally, it updates the parent component
+ * with the new room ID and closes the room dashboard.
+ */
+
     const room = rooms.find((room) => room.id === roomId);
 
     if (room) {

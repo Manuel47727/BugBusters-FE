@@ -53,6 +53,16 @@ const DialogContent = React.forwardRef<
 ))
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
+/**
+ * A component that renders a header section for a dialog.
+ * It is a flexible container that aligns its content vertically
+ * and centers text in smaller screens while aligning text to the left
+ * in larger screens. It accepts all standard HTML div attributes.
+ *
+ * @param {string} className - Additional classes for styling.
+ * @param {Object} props - Additional properties to be passed to the div element.
+ */
+
 const DialogHeader = ({
   className,
   ...props
@@ -66,6 +76,16 @@ const DialogHeader = ({
   />
 )
 DialogHeader.displayName = "DialogHeader"
+
+/**
+ * A component that renders the footer section of a dialog.
+ * It aligns its content in a column on smaller screens and in a row
+ * with space between elements on larger screens. It accepts all standard
+ * HTML div attributes.
+ *
+ * @param {string} className - Additional classes for styling.
+ * @param {Object} props - Additional properties to be passed to the div element.
+ */
 
 const DialogFooter = ({
   className,

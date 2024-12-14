@@ -12,6 +12,25 @@ interface UC {
   ucclosed: boolean;
 }
 
+/**
+ * A card for displaying a UC's information.
+ *
+ * @param {{ uc: UC }} props
+ * @param {UC} props.uc The UC to display.
+ *
+ * @example
+ * <UcCard uc={{
+ *   id: 1,
+ *   name: "Introduction to Computer Science",
+ *   semestre: 1,
+ *   ano: 2022,
+ *   tipo: "Curricular Unit",
+ *   mandatory: true,
+ *   ucclosed: false,
+ * }} />
+ *
+ * @returns {React.ReactElement} The UC card element.
+ */
 export default function UcCard({ uc }: { uc: UC }) {
   function abbreviateName(name: string): string {
     return name

@@ -9,6 +9,19 @@ import Image from "next/image";
 import { useAuth } from "@/context/AuthContext";
 import { AuthContextType } from "@/@types/AuthContextTypes";
 
+/**
+ * Home component that displays a list of courses based on user role.
+ *
+ * This component fetches and displays courses either for all users (admin)
+ * or for the authenticated user's assigned courses. It handles loading and
+ * error states during the data fetching process.
+ *
+ * Admin users are provided with an option to add new courses.
+ *
+ * @returns A JSX element containing a header, a loading indicator, an error
+ * message if any, and a grid of course cards.
+ */
+
 export default function Home() {
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,6 +30,17 @@ export default function Home() {
   const { user, isAuthenticated } = useAuth() as AuthContextType;
 
   useEffect(() => {
+/**
+ * Fetches courses from the server based on the user's role.
+ * 
+ * If the user is an admin, it fetches all courses. Otherwise, it fetches
+ * courses assigned to the user.
+ * 
+ * Sets the fetched courses to the state and handles loading and error states.
+ * 
+ * Throws an error if the fetch operation fails.
+ */
+
     const fetchCourses = async () => {
       try {
         let response;
