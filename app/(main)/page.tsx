@@ -29,18 +29,17 @@ export default function Home() {
 
   const { user, isAuthenticated } = useAuth() as AuthContextType;
 
+  /**
+   * Fetches courses from the server based on the user's role.
+   *
+   * If the user is an admin, it fetches all courses. Otherwise, it fetches
+   * courses assigned to the user.
+   *
+   * Sets the fetched courses to the state and handles loading and error states.
+   *
+   * Throws an error if the fetch operation fails.
+   */
   useEffect(() => {
-/**
- * Fetches courses from the server based on the user's role.
- * 
- * If the user is an admin, it fetches all courses. Otherwise, it fetches
- * courses assigned to the user.
- * 
- * Sets the fetched courses to the state and handles loading and error states.
- * 
- * Throws an error if the fetch operation fails.
- */
-
     const fetchCourses = async () => {
       try {
         let response;

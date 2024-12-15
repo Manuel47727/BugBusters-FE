@@ -27,24 +27,20 @@ export default function Header() {
 
           {/* Navigation links */}
           <ul className="flex gap-10 items-center">
-            <li className="hover:text-blue-500">
+            <li className="hover:text-blue-400">
               <a href="/" className="flex items-center gap-2">
-                <House className="size-4" />
-                Home
-              </a>
-            </li>
-            <li className="hover:text-blue-400">
-              <a href="/tobemade" className="flex items-center gap-2">
                 <BookMarked className="size-4" />
-                My Course
+                My Courses
               </a>
             </li>
-            <li className="hover:text-blue-400">
-              <a href="/settings" className="flex items-center gap-2">
-                <Settings className="size-4" />
-                Settings
-              </a>
-            </li>
+            {user?.role === "admin" && (
+              <li className="hover:text-blue-400">
+                <a href="/settings" className="flex items-center gap-2">
+                  <Settings className="size-4" />
+                  Settings
+                </a>
+              </li>
+            )}
           </ul>
         </div>
 
